@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<head>
+    <title>MQ-Spy</title>
+    <link rel="stylesheet" href="styles/index.css">
+    <link rel="stylesheet" href="styles/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="styles/jquery-ui.theme.min.css">
+    <link rel="stylesheet" href="styles/override.css">
+</head>
+<body>
+    <h3 id="app_title"></h3>
+    <div id="main_container">
+        <div id="input_container">
+            <div id="testqm" class="box">
+                <div class="box-title">TEST CONNECTION</div>
+                <hr>
+                <div style="display: flex; justify-content: space-between; flex-wrap: nowrap;">
+                    <input id="input_qmname_testqm" type="text" placeholder="Enter queue manager name" class="qinput">
+                    <button id="btn_testqm">TEST CONNECTION</button>
+                </div>
+            </div>
+            <div id="browseqs" class="box">
+                <div class="box-title">QUERY QUEUES</div>
+                <hr>
+                <div>
+                    <div>
+                        <label for="select_environment">Select environment:</label>
+                    </div>
+                    <div>
+                        <select id="select_environment"></select>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <div>
+                        <label for="input_qname_browseqs">Select queues:</label>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; flex-wrap: nowrap;">
+                        <input id="input_qname_browseqs" class="qinput clearable" type="text" placeholder="Enter queue name (autocomplete, multiselect)">
+                        <button title="Load queue list from file" onclick="document.getElementById('file_selector').click()">LOAD FROM FILE</button>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <div>
+                        <label for="browseqs_root_element">Selected queues:</label>
+                    </div>
+                    <div id="browseqs_root_element" style="max-height: 300px; overflow: auto;"></div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 5px;"><button id="btn_saveqlist" title="Save queue list to file">SAVE TO FILE</button></div>
+                </div>
+                <br>
+                <input type="file" id="file_selector" style="display: none;">
+                <div id="timestamp_entry">
+                    <div>
+                        <div>
+                            <label for="input_ts_from">Message timestamp from:</label>
+                        </div>
+                        <div>
+                            <input id="input_ts_from" class="clearable greyable" type="datetime-local" title="Timestamp from">
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <label for="input_ts_to">Message timestamp to:</label>
+                        </div>
+                        <div>
+                            <input id="input_ts_to" class="clearable greyable" type="datetime-local" title="Timestamp to">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div style="display: flex; flex-direction: column;">
+                    <div>
+                        <div>
+                            <label>Message search parameters:</label>
+                        </div>
+                        <div>
+                            <input id="input_searchparameter_1" class="qinput searchparam-entry clearable greyable" type="text" placeholder="Enter search parameter 1 (autotrim, case-ignored)">
+                        </div>
+                        <div>
+                            <input id="input_searchparameter_2" class="qinput searchparam-entry clearable greyable" type="text" placeholder="Enter search parameter 2 (autotrim, case-ignored)">
+                        </div>
+                        <div>
+                            <input id="input_searchparameter_3" class="qinput searchparam-entry clearable greyable" type="text" placeholder="Enter search parameter 3 (autotrim, case-ignored)">
+                        </div>
+                        <div>
+                            <input id="input_searchparameter_4" class="qinput searchparam-entry clearable greyable" type="text" placeholder="Enter search parameter 4 (autotrim, case-ignored)">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div style="display: flex; flex-direction: row;">
+                    <div>
+                        <input type="checkbox" name="search_params_and_rel" id="search_params_and_rel" class="greyable">
+                    </div>
+                    <div>
+                        <label for="search_params_and_rel">AND relation between search parameters</label>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: row;">
+                    <div>
+                        <input type="checkbox" name="get_only_queuedepth" id="get_only_queuedepth">
+                    </div>
+                     <div>
+                        <label for="get_only_queuedepth">Get only queue depth</label>
+                    </div>
+                </div>
+                <br>
+                <div style="display: flex; justify-content: space-around;">
+                    <button id="btn_browseqs">START QUERY</button>
+                    <button id="btn_clear_browseqs">CLEAR QUERY</button>
+                </div>
+            </div>
+            <div id="querystatus" class="box">
+                <div class="box-title">QUERY STATUS</div>
+                <hr>
+                <div id="querystatus_root_element"></div>
+            </div>
+            <div id="querystats" class="box">
+                <div class="box-title">QUERY LOG</div>
+                <hr>
+                <div id="querystats_root_element" class="border-all"></div>
+            </div>
+        </div>
+        <div id="results_container">
+            <div id="results" class="box">
+                <div class="box-title">QUERY RESULTS</div>
+                    <hr>
+                    <div id="results_root_element" class="border-all">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="scripts/index.js"></script>
+    <script src="scripts/jquery.js"></script>
+    <script src="scripts/jquery-ui.min.js"></script>
+    <script src="scripts/jszip.min.js"></script>
+</body>
+</html>
