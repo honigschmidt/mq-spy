@@ -1,7 +1,7 @@
 package com.example.mqspy.service;
 
-import com.example.mqspy.model.Queue;
 import com.example.mqspy.model.*;
+import com.example.mqspy.model.Queue;
 import com.ibm.mq.*;
 import com.ibm.mq.constants.CMQC;
 import com.ibm.mq.constants.MQConstants;
@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -217,6 +218,8 @@ public class QueueService {
             }
         }
         query.setQueryEndTime(LocalDateTime.now());
+        Duration queryDuration = Duration.between(query.getQueryStartTime(), query.getQueryEndTime());
+        query.setQueryDuration(queryDuration);
         queryRepository.save(query);
         return messageList;
     }
@@ -266,6 +269,7 @@ public class QueueService {
                 query.getGetOnlyQueueDepth(),
                 query.getQueryStartTime(),
                 query.getQueryEndTime(),
+                query.getQueryDuration(),
                 queryStatsEntries
         );
     }

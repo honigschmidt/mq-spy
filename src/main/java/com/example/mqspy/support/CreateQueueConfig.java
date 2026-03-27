@@ -27,7 +27,7 @@ public class CreateQueueConfig {
     static String queueConfigArray = "qmgrList";
     static ObjectNode queueConfig = null;
     static ObjectNode queueManagerConfig = null;
-    static List<String> queueNameFilters = Arrays.asList("");
+    static List<String> queueNameFilters = Arrays.asList(".PROT", ".LOG");
 
     public static void main(String[] args) {
         createQueueConfig();

@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class Query {
     private Boolean getOnlyQueueDepth;
     private LocalDateTime queryStartTime;
     private LocalDateTime queryEndTime;
+    private Duration queryDuration;
 
     public String getQueryId() {
         return queryId;
@@ -74,6 +76,22 @@ public class Query {
         this.timeStampTo = timeStampTo;
     }
 
+    public Boolean getSearchParametersAndRelation() {
+        return searchParametersAndRelation;
+    }
+
+    public void setSearchParametersAndRelation(Boolean searchParametersAndRelation) {
+        this.searchParametersAndRelation = searchParametersAndRelation;
+    }
+
+    public Boolean getGetOnlyQueueDepth() {
+        return getOnlyQueueDepth;
+    }
+
+    public void setGetOnlyQueueDepth(Boolean getOnlyQueueDepth) {
+        this.getOnlyQueueDepth = getOnlyQueueDepth;
+    }
+
     public LocalDateTime getQueryStartTime() {
         return queryStartTime;
     }
@@ -90,19 +108,11 @@ public class Query {
         this.queryEndTime = queryEndTime;
     }
 
-    public Boolean getSearchParametersAndRelation() {
-        return searchParametersAndRelation;
+    public Duration getQueryDuration() {
+        return queryDuration;
     }
 
-    public void setSearchParametersAndRelation(Boolean searchParametersAndRelation) {
-        this.searchParametersAndRelation = searchParametersAndRelation;
-    }
-
-    public Boolean getGetOnlyQueueDepth() {
-        return getOnlyQueueDepth;
-    }
-
-    public void setGetOnlyQueueDepth(Boolean getOnlyQueueDepth) {
-        this.getOnlyQueueDepth = getOnlyQueueDepth;
+    public void setQueryDuration(Duration queryDuration) {
+        this.queryDuration = queryDuration;
     }
 }

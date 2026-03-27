@@ -122,6 +122,7 @@ label {
 .query-stats-table-content {
     white-space: pre;
     padding: 5px;
+    font-family: monospace;
 }
 
 .border-all {

@@ -1,5 +1,6 @@
 package com.example.mqspy.model;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +16,10 @@ public class QueryStats {
     private Boolean getOnlyQueueDepth;
     private LocalDateTime queryStartTime;
     private LocalDateTime queryEndTime;
+    private Duration queryDuration;
     private List<QueryStatsEntry> queryStatsEntries = new ArrayList<>();
 
-    public QueryStats(String queryId, String environment, List<String> searchParameters, LocalDateTime timeStampFrom, LocalDateTime timeStampTo, Boolean searchParametersAndRelation, Boolean getOnlyQueueDepth, LocalDateTime queryStartTime, LocalDateTime queryEndTime, List<QueryStatsEntry> queryStatsEntries) {
+    public QueryStats(String queryId, String environment, List<String> searchParameters, LocalDateTime timeStampFrom, LocalDateTime timeStampTo, Boolean searchParametersAndRelation, Boolean getOnlyQueueDepth, LocalDateTime queryStartTime, LocalDateTime queryEndTime, Duration queryDuration, List<QueryStatsEntry> queryStatsEntries) {
         this.queryId = queryId;
         this.environment = environment;
         this.searchParameters = searchParameters;
@@ -27,6 +29,7 @@ public class QueryStats {
         this.getOnlyQueueDepth = getOnlyQueueDepth;
         this.queryStartTime = queryStartTime;
         this.queryEndTime = queryEndTime;
+        this.queryDuration = queryDuration;
         this.queryStatsEntries = queryStatsEntries;
     }
 
@@ -92,6 +95,14 @@ public class QueryStats {
 
     public void setQueryEndTime(LocalDateTime queryEndTime) {
         this.queryEndTime = queryEndTime;
+    }
+
+    public Duration getQueryDuration() {
+        return queryDuration;
+    }
+
+    public void setQueryDuration(Duration queryDuration) {
+        this.queryDuration = queryDuration;
     }
 
     public Boolean getSearchParametersAndRelation() {

@@ -49,25 +49,6 @@
                 </div>
                 <br>
                 <input type="file" id="file_selector" style="display: none;">
-                <div id="timestamp_entry">
-                    <div>
-                        <div>
-                            <label for="input_ts_from">Message timestamp from:</label>
-                        </div>
-                        <div>
-                            <input id="input_ts_from" class="clearable greyable" type="datetime-local" title="Timestamp from">
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <label for="input_ts_to">Message timestamp to:</label>
-                        </div>
-                        <div>
-                            <input id="input_ts_to" class="clearable greyable" type="datetime-local" title="Timestamp to">
-                        </div>
-                    </div>
-                </div>
-                <br>
                 <div style="display: flex; flex-direction: column;">
                     <div>
                         <div>
@@ -88,22 +69,44 @@
                     </div>
                 </div>
                 <br>
-                <div style="display: flex; flex-direction: row;">
+                <div id="timestamp_entry">
                     <div>
-                        <input type="checkbox" name="search_params_and_rel" id="search_params_and_rel" class="greyable">
+                        <div>
+                            <label for="input_ts_from">Message timestamp from:</label>
+                        </div>
+                        <div>
+                            <input id="input_ts_from" class="clearable greyable" type="datetime-local" title="Timestamp from">
+                        </div>
                     </div>
                     <div>
-                        <label for="search_params_and_rel">AND relation between search parameters</label>
+                        <div>
+                            <label for="input_ts_to">Message timestamp to:</label>
+                        </div>
+                        <div>
+                            <input id="input_ts_to" class="clearable greyable" type="datetime-local" title="Timestamp to">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div style="display: flex; flex-direction: row;">
+                    <div>
+                        <label for="select_search_logic">Search logic:</label>
+                        <select name="select_search_logic" id="select_search_logic" class="greyable" style="width: 80px;">
+                            <option value="or">OR</option>
+                            <option value="and">AND</option>
+                        </select>
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: row;">
                     <div>
-                        <input type="checkbox" name="get_only_queuedepth" id="get_only_queuedepth">
-                    </div>
-                     <div>
-                        <label for="get_only_queuedepth">Get only queue depth</label>
+                        <label for="select_mode">Mode:</label>
+                        <select name="select_mode" id="select_mode" style="width: 80px;">
+                            <option value="browse">BROWSE</option>
+                            <option value="inquire">INQUIRE</option>
+                        </select>
                     </div>
                 </div>
+                <br>
                 <br>
                 <div style="display: flex; justify-content: space-around;">
                     <button id="btn_browseqs">START QUERY</button>

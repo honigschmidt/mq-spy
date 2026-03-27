@@ -16,6 +16,7 @@ function main() {
         "getOnlyQueueDepth": false,
         "queryStartTime": "1970-01-01T00:00:00.000000",
         "queryEndTime": "1970-01-01T00:00:00.000000",
+        "queryDuration": "PT0.000000S",
         "queryStatsEntries": [
             {
                 "queryId": "0000000000000",
@@ -72,7 +73,7 @@ function main() {
     ];
 
     const applicationName = "MQ-Spy";
-    const applicationVersion = "v1.0.0";
+    const applicationVersion = "v1.0.2";
     const resultsRootElement = document.querySelector("#results_root_element");
     const input_qmname_testqm = document.querySelector("#input_qmname_testqm");
     const btn_testqm = document.querySelector("#btn_testqm");
@@ -86,14 +87,14 @@ function main() {
     const input_searchParameter2 = document.querySelector("#input_searchparameter_2");
     const input_searchParameter3 = document.querySelector("#input_searchparameter_3");
     const input_searchParameter4 = document.querySelector("#input_searchparameter_4");
-    const input_searchParametersAndRelation = document.querySelector("#search_params_and_rel");
-    const input_getOnlyQueueDepth = document.querySelector("#get_only_queuedepth");
+    const select_search_logic = document.querySelector("#select_search_logic");
+    const select_mode = document.querySelector("#select_mode");
     const btn_browseqs = document.querySelector("#btn_browseqs");
     const btn_clear_browseqs = document.querySelector("#btn_clear_browseqs");
     const fileSelector = document.querySelector("#file_selector");
     const queryStatusRootElement = document.querySelector("#querystatus_root_element");
     const queryStatsRootElement = document.querySelector("#querystats_root_element");
-    const zipFileName = "Messages.zip";
+    const zipFileName = "messages.zip";
     
     var downloadList = [];
     var queueNames = []; // Queue name on query list
@@ -225,8 +226,8 @@ function main() {
 
     // Browse queues
     btn_browseqs.addEventListener("click", () => {
-        let searchParametersAndRelation = input_searchParametersAndRelation.checked;
-        let getOnlyQueueDepth = input_getOnlyQueueDepth.checked;
+        let searchParametersAndRelation = (select_search_logic.value === "and");
+        let getOnlyQueueDepth = (select_mode.value === "inquire");
         let formIsValid = true;
         let timeStampFrom = input_ts_from.value;
         let timeStampTo = input_ts_to.value;
@@ -287,7 +288,7 @@ function main() {
                     searchParameters: null,
                     timeStampFrom: null,
                     timeStampTo: null,
-                    searchParametersAndRelation: null,
+                    searchParametersAndRelation: searchParametersAndRelation,
                     getOnlyQueueDepth: getOnlyQueueDepth
                 }
             }
@@ -296,15 +297,20 @@ function main() {
         }
     })
 
-    input_getOnlyQueueDepth.addEventListener("click", () => {
-        let fieldsToGreyOut = document.querySelectorAll(".greyable");
-        fieldsToGreyOut.forEach(field => {
-            if (field.disabled == false) {
-                field.disabled = true;
-            } else if (field.disabled == true) {
-                field.disabled = false;
-            }
-        })
+    select_mode.addEventListener("change", () => {
+        let greyableFields = document.querySelectorAll(".greyable");
+        if (select_mode.value == "inquire") {
+                greyableFields.forEach(field => {
+                    field.disabled = true;
+                })
+        }
+        if (select_mode.value == "browse") {
+            greyableFields.forEach(field => {
+                greyableFields.forEach(field => {
+                    field.disabled = false;
+                })
+            })
+        }
     })
 
     btn_clear_browseqs.addEventListener("click", clearQuery);
@@ -325,8 +331,8 @@ function main() {
                 field.disabled = false;
             }
         })
-        input_searchParametersAndRelation.checked = false;
-        input_getOnlyQueueDepth.checked = false;
+        select_search_logic.value = "or";
+        select_mode.value = "browse";
         queueNames.length = 0;
         removeAllChildren(browseqsRootElement);
         browseqsRootElement.appendChild(createQueryTable());
@@ -452,7 +458,7 @@ function main() {
                 case 204:
                     throw new Error("No matching messages found.");
                 case 206:
-                    throw new Error("Please check query statistics for queue depth(s).");
+                    throw new Error("Please check query log for queue depth(s).");
                 case 422:
                     throw new Error("Invalid query parameters.");
                 case 429:
@@ -887,8 +893,14 @@ function main() {
         return div_main;
     }
 
-    // Create query statistics table
+    // Create query log table
     function createQueryStatsTable(queryStats) {
+        const COL_WIDTH = 12;
+        const isAND = queryStats["searchParametersAndRelation"];
+        const isInquireMode = queryStats["getOnlyQueueDepth"];
+        let totalMessages = 0;
+        let totalMatchingMessages = 0;
+
         let queryStatsTable = document.createElement("div");
         
         queryStatsTable.classList.add("query-stats-table");
@@ -897,7 +909,9 @@ function main() {
         let queryStatsTableHead = document.createElement("div");
         queryStatsTableHead.classList.add("query-stats-table-head", "border-bottom");
 
-        // Table head buttons
+        // Button bar
+        
+        // Copy log button
         let div_qstat_copybtn = document.createElement("div");
         div_qstat_copybtn.classList.add("div-qstat-button");
         let copybtn = document.createElement("button");
@@ -910,6 +924,19 @@ function main() {
         div_qstat_copybtn.appendChild(copybtn);
         queryStatsTableHead.appendChild(div_qstat_copybtn);
 
+        // Save log button
+        let div_qstat_savebtn = document.createElement("div");
+        div_qstat_savebtn.classList.add("div-qstat-button");
+        let savebtn = document.createElement("button");
+        savebtn.classList.add("qstat-button");
+        savebtn.innerHTML = "<img src='assets/download.svg' class='icon'/>";
+        savebtn.title = "Save query log to file";
+        savebtn.addEventListener("click", () => {
+            download_query_log(contentString);
+        });
+        div_qstat_savebtn.appendChild(savebtn);
+        queryStatsTableHead.appendChild(div_qstat_savebtn);
+
         // Table content
         let queryStatsTableContent = document.createElement("div");
         queryStatsTableContent.classList.add("query-stats-table-content");
@@ -920,13 +947,18 @@ function main() {
         let contentString = "";
 
         // Query properties
+        let queryDurationRaw = (queryStats["queryDuration"]).match(/PT(?:(\d+)M)?(?:([\d.]+)S)?/);
+        let queryDurationMins = parseFloat(queryDurationRaw[1] || 0);
+        let queryDurationSecs = parseFloat(queryDurationRaw[2] || 0);
+        let queryDuration = ((queryDurationMins * 60) + queryDurationSecs).toFixed(2);
+
         contentString +=
-        `---\r\n` +
-        `Application version: ${applicationName} ${applicationVersion}\r\n` +
-        `Query ID: ${queryStats["queryId"]}\r\n` +
-        `Environment: ${queryStats["environment"]}\r\n` +
-        `Query started: ${queryStats["queryStartTime"]}\r\n` +
-        `Query finished: ${queryStats["queryEndTime"]}\r\n`;
+        `--- ${applicationName} ${applicationVersion} ---\r\n` +
+        `Env:`.padEnd(COL_WIDTH) + `${queryStats["environment"]}\r\n` +
+        `Query ID:`.padEnd(COL_WIDTH) + `${queryStats["queryId"]}\r\n` +
+        `Started:`.padEnd(COL_WIDTH) + `${queryStats["queryStartTime"].replace('T', ' ').split(".")[0]}\r\n` +
+        `Finished:`.padEnd(COL_WIDTH) + `${queryStats["queryEndTime"].replace('T', ' ').split(".")[0]}\r\n` +
+        `Duration:`.padEnd(COL_WIDTH) + `${queryDuration}s\r\n`
 
         // Search parameters
         if (searchParameters == null) {
@@ -938,30 +970,42 @@ function main() {
         if (queryStats["timeStampTo"] == null) {
             queryStats["timeStampTo"] = "--"
         }
-        contentString +=
-        `---\r\n` +
-        `Search parameters: ${searchParameters}\r\n` +
-        `Timestamp from: ${queryStats["timeStampFrom"]}\r\n` +
-        `Timestamp to: ${queryStats["timeStampTo"]}\r\n` +
-        `AND relation between search parameters: ${queryStats["searchParametersAndRelation"]}\r\n` +
-        `Get only queue depth: ${queryStats["getOnlyQueueDepth"]}\r\n`;
+
+        contentString += "---\r\n"
+        
+        if (!isInquireMode) {
+           contentString +=
+            `Search:`.padEnd(COL_WIDTH) + `${searchParameters} [${isAND ? "AND":"OR"}]\r\n` +
+            `Time from:`.padEnd(COL_WIDTH) + `${queryStats["timeStampFrom"].replace('T', ' ').split(".")[0]}\r\n` +
+            `Time to:`.padEnd(COL_WIDTH) + `${queryStats["timeStampTo"].replace('T', ' ').split(".")[0]}\r\n`+ 
+            "Mode:".padEnd(COL_WIDTH) + "BROWSE\r\n";
+        } else {
+            contentString +=
+            "Mode:".padEnd(COL_WIDTH) + "INQUIRE\r\n";
+        }
 
         // Queues
         contentString +=
-        `---\r\n` +
-        `Queried queues (total / matching messages):\r\n`;
+        "---\r\n" +
+        `${isInquireMode ? "Depth":"Matches"}`.padEnd(COL_WIDTH) + `Queue (QMGR)\r\n` +
+        `${isInquireMode ? "-----":"-------" }`.padEnd(COL_WIDTH) + `------------\r\n`
         queryStatsEntries.forEach((entry) => {
-            contentString +=
-            `${entry["queueName"]} (${entry["queueManagerName"]}): ${entry["queueDepth"]} / ${entry["matchingMessagesCount"]}\r\n`;
+            if (isInquireMode) {
+                matchStat = `[${entry["queueDepth"]}]`;
+            } else {
+                matchStat = `[${entry["matchingMessagesCount"]}/${entry["queueDepth"]}]`;
+            }
+            contentString += `${matchStat.padEnd(COL_WIDTH)}${entry["queueName"]} (${entry["queueManagerName"]})\r\n`;
+            totalMessages += entry["queueDepth"];
+            totalMatchingMessages += entry["matchingMessagesCount"];
         })
-
-        contentString += `---`;
-
+        if (!isInquireMode) {
+            contentString += `TOTAL: ${totalMatchingMessages}/${totalMessages}\r\n`;
+        }
+        contentString += "---";
         queryStatsTableContent.textContent = contentString;
-
         queryStatsTable.appendChild(queryStatsTableHead);
         queryStatsTable.appendChild(queryStatsTableContent);
-
         return queryStatsTable;
     }
 
@@ -1019,36 +1063,45 @@ function main() {
     function formatPayload(messagePayload) {
 
         // If JSON
-        if (messagePayload.charAt(0) == "{") {
+        if (messagePayload.trim().startsWith("{")) {
             let parsedJson = JSON.parse(messagePayload);
-            return JSON.stringify(parsedJson, null, 2);
+            return JSON.stringify(parsedJson, null, 4);
         }
 
         // If XML
-        if (messagePayload.charAt(0) == "<") {
-            let xmlDoc = new DOMParser().parseFromString(messagePayload, 'application/xml');
-            let xsltDoc = new DOMParser().parseFromString([
-                '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
-                '  <xsl:strip-space elements="*"/>',
-                '  <xsl:template match="para[content-style][not(text())]">',
-                '    <xsl:value-of select="normalize-space(.)"/>',
-                '  </xsl:template>',
-                '  <xsl:template match="node()|@*">',
-                '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
-                '  </xsl:template>',
-                '  <xsl:output indent="yes"/>',
-                '</xsl:stylesheet>',
-            ].join('\n'), 'application/xml');
-    
-            let xsltProcessor = new XSLTProcessor();    
-            xsltProcessor.importStylesheet(xsltDoc);
-            let resultDoc = xsltProcessor.transformToDocument(xmlDoc);
-            let resultXML = new XMLSerializer().serializeToString(resultDoc);
-            return resultXML;
+        if (messagePayload.trim().startsWith("<")) {
+            const doc = new DOMParser().parseFromString(messagePayload, 'application/xml');
+            let formatted = '';
+            let indent = 0;
+
+            function traverse(node) {
+                const spacing = '    '.repeat(indent);
+                if (node.nodeType === 1) {
+                    formatted += `${spacing}<${node.tagName}${getAttrs(node)}>\n`;
+                    indent++;
+                    Array.from(node.childNodes).forEach(traverse);
+                    indent--;
+                    formatted += `${spacing}</${node.tagName}>\n`;
+                } else if (node.nodeType === 3 && node.nodeValue.trim()) {
+                    formatted += `${spacing}  ${node.nodeValue.trim()}\n`;
+                }
+            }
+            
+            function getAttrs(node) {
+                return Array.from(node.attributes)
+                    .map(a => {
+                        const prefix = a.name.startsWith("xmlns") ? " [NS]" : ""; 
+                        return ` ${a.name}="${a.value}"`;
+                    })
+                    .join('');
+            }
+
+            traverse(doc.documentElement);
+            return formatted;
         }
     
         // If not recognized
-        return(messagePayload);
+        return messagePayload;
     }
 
     // Assemble fine name for download
@@ -1063,7 +1116,7 @@ function main() {
     }
 
 
-    // Download file
+    // Download messages
     async function downloadSelected(downloadList) {
         const zip = new JSZip();
         downloadList.forEach((messageKey) => {
@@ -1084,10 +1137,26 @@ function main() {
             type: "blob",
             streamFiles: true
         })
-        let fileLink = document.createElement('a');
-        fileLink.href = window.URL.createObjectURL(zipFile);
+        let fileLink = document.createElement("a");
+        fileLink.href = URL.createObjectURL(zipFile);
         fileLink.download = zipFileName;
+        document.body.appendChild(fileLink);
         fileLink.click();
+        document.body.removeChild(fileLink);
+        URL.revokeObjectURL(fileLink.href);
+    }
+
+    // Download query log
+    function download_query_log(query_log) {
+        const logFileName = "query_log_" + queryId + ".txt";
+        const blob = new Blob([query_log], {type: "text/plain;charset=utf-8"});
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = logFileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
     }
 
     // General function to clear HTML nodes
