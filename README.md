@@ -48,3 +48,7 @@ For local testing and validation, a pre-configured environment is compatible wit
 After starting your container, ensure the following permissions are granted for diagnostic access:
 + setmqaut -m QM1 -t queue -n SYSTEM.ADMIN.COMMAND.QUEUE -g nobody +inq +put
 + setmqaut -m QM1 -t queue -n SYSTEM.DEFAULT.MODEL.QUEUE -g nobody +get +inq +browse
+
+### License
+
+This project is licensed under the **MIT No Attribution License** — see the [LICENSE](LICENSE) file for full text and parameters.
