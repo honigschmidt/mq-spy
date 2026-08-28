@@ -2,6 +2,8 @@
 
 **MQ-Spy** is a high-performance, non-destructive diagnostic platform engineered for deep-packet inspection and real-time forensics within IBM MQ ecosystems. Designed to bridge the gap between legacy middleware and modern observability, it provides a robust interface for auditing complex message flows without impacting production stability.
 
+![MQ-Spy WebUI](demo.png)
+
 ### Key Capabilities
 
 + **Non-Destructive Forensic Auditing:** Browse and inspect live queue content across multiple environments (DEV, PROD, etc.) using native MQI protocols.
